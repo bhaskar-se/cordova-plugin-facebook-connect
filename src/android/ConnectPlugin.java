@@ -268,6 +268,14 @@ public class ConnectPlugin extends CordovaPlugin {
             executeSetApplicationId(args, callbackContext);
             return true;
 
+        } else if (action.equals("getClientToken")) {
+            callbackContext.success(FacebookSdk.getClientToken());
+            return true;
+
+        } else if (action.equals("setClientToken")) {
+            executeSetClientToken(args, callbackContext);
+            return true;
+
         } else if (action.equals("getApplicationName")) {
             callbackContext.success(FacebookSdk.getApplicationName());
             return true;
@@ -386,6 +394,22 @@ public class ConnectPlugin extends CordovaPlugin {
             callbackContext.success();
         } catch (JSONException e) {
             callbackContext.error("Error setting application ID");
+        }
+    }
+
+    private void executeSetClientToken(JSONArray args, CallbackContext callbackContext) {
+        if (args.length() == 0) {
+            // Not enough parameters
+            callbackContext.error("Invalid arguments");
+            return;
+        }
+
+        try {
+            String clientToken = args.getString(0);
+            FacebookSdk.setClientToken(clientToken);
+            callbackContext.success();
+        } catch (JSONException e) {
+            callbackContext.error("Error setting client token");
         }
     }
 
@@ -597,7 +621,7 @@ public class ConnectPlugin extends CordovaPlugin {
 
         if (declinedPermission != null) {
             graphContext.error("This request needs declined permission: " + declinedPermission);
-			return;
+            return;
         }
 
         cordova.setActivityResultCallback(this);
@@ -860,7 +884,7 @@ public class ConnectPlugin extends CordovaPlugin {
         } else {
             try {
                 byte[] photoImageData = Base64.decode(paramBundle.get("photo_image"), Base64.DEFAULT);
-                Bitmap image = BitmapFactory.decodeByteArray(photoImageData, 0, photoImageData.length); 
+                Bitmap image = BitmapFactory.decodeByteArray(photoImageData, 0, photoImageData.length);
                 photoBuilder.setBitmap(image).setUserGenerated(true);
             } catch (Exception e) {
                 Log.d(TAG, "photo_image cannot be decoded");
@@ -891,10 +915,10 @@ public class ConnectPlugin extends CordovaPlugin {
     private boolean hasAccessToken() {
         AccessToken token = AccessToken.getCurrentAccessToken();
 
-		if (token == null)
-			return false;
+        if (token == null)
+            return false;
 
-		return !token.isExpired();
+        return !token.isExpired();
     }
 
     private void handleError(FacebookException exception, CallbackContext context) {
@@ -978,18 +1002,18 @@ public class ConnectPlugin extends CordovaPlugin {
             Date today = new Date();
             long expiresTimeInterval = (accessToken.getExpires().getTime() - today.getTime()) / 1000L;
             response = "{"
-                + "\"status\": \"connected\","
-                + "\"authResponse\": {"
-                + "\"accessToken\": \"" + accessToken.getToken() + "\","
-                + "\"data_access_expiration_time\": \"" + Math.max(dataAccessExpirationTimeInterval, 0) + "\","
-                + "\"expiresIn\": \"" + Math.max(expiresTimeInterval, 0) + "\","
-                + "\"userID\": \"" + accessToken.getUserId() + "\""
-                + "}"
-                + "}";
+                    + "\"status\": \"connected\","
+                    + "\"authResponse\": {"
+                    + "\"accessToken\": \"" + accessToken.getToken() + "\","
+                    + "\"data_access_expiration_time\": \"" + Math.max(dataAccessExpirationTimeInterval, 0) + "\","
+                    + "\"expiresIn\": \"" + Math.max(expiresTimeInterval, 0) + "\","
+                    + "\"userID\": \"" + accessToken.getUserId() + "\""
+                    + "}"
+                    + "}";
         } else {
             response = "{"
-                + "\"status\": \"unknown\""
-                + "}";
+                    + "\"status\": \"unknown\""
+                    + "}";
         }
         try {
             return new JSONObject(response);
@@ -1002,9 +1026,9 @@ public class ConnectPlugin extends CordovaPlugin {
     public JSONObject getFacebookRequestErrorResponse(FacebookRequestError error) {
 
         String response = "{"
-            + "\"errorCode\": \"" + error.getErrorCode() + "\","
-            + "\"errorType\": \"" + error.getErrorType() + "\","
-            + "\"errorMessage\": \"" + error.getErrorMessage() + "\"";
+                + "\"errorCode\": \"" + error.getErrorCode() + "\","
+                + "\"errorType\": \"" + error.getErrorType() + "\","
+                + "\"errorMessage\": \"" + error.getErrorMessage() + "\"";
 
         if (error.getErrorUserMessage() != null) {
             response += ",\"errorUserMessage\": \"" + error.getErrorUserMessage() + "\"";
@@ -1053,7 +1077,7 @@ public class ConnectPlugin extends CordovaPlugin {
         }
         return new JSONObject();
     }
-    
+
     public JSONObject getProfile() {
         String response;
         final Profile profile = Profile.getCurrentProfile();
@@ -1061,10 +1085,10 @@ public class ConnectPlugin extends CordovaPlugin {
             response = "{}";
         } else {
             response = "{"
-                + "\"userID\": \"" + profile.getId() + "\","
-                + "\"firstName\": \"" + profile.getFirstName() + "\","
-                + "\"lastName\": \"" + profile.getLastName() + "\""
-                + "}";
+                    + "\"userID\": \"" + profile.getId() + "\","
+                    + "\"firstName\": \"" + profile.getFirstName() + "\","
+                    + "\"lastName\": \"" + profile.getLastName() + "\""
+                    + "}";
         }
         try {
             return new JSONObject(response);
